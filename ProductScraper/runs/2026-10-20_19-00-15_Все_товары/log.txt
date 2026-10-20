@@ -1,0 +1,57 @@
+19:00:15 Папка запуска: D:\claudepetpapka\AlotPro\product-scraper\ProductScraper\runs\2026-10-20_19-00-15_Все_товары
+19:00:15 Настройки: «Все товары», потоков 2, лимит 40, пауза 1.0 с
+19:00:18 Каталог, страница 1: ссылок 20, новых 20
+19:00:20 Каталог, страница 2: ссылок 20, новых 20
+19:00:20 Карточки: в очереди 40, запускаю потоков: 2
+19:00:23 Сохранено: A Light in the Attic — 51.77 £
+19:00:23 Сохранено: Tipping the Velvet — 53.74 £
+19:00:25 Сохранено: Soumission — 50.1 £
+19:00:26 Сохранено: Sharp Objects — 47.82 £
+19:00:28 Сохранено: Sapiens: A Brief History of Humankind — 54.23 £
+19:00:28 Сохранено: The Requiem Red — 22.65 £
+19:00:28 Получена команда «Стоп»: дорабатываю текущие страницы и сохраняю прогресс…
+19:00:29 Файл сохранён: D:\claudepetpapka\AlotPro\product-scraper\ProductScraper\runs\2026-10-20_19-00-15_Все_товары\products.csv
+19:00:29 Файл сохранён: D:\claudepetpapka\AlotPro\product-scraper\ProductScraper\runs\2026-10-20_19-00-15_Все_товары\products.xlsx
+19:00:29 Завершено (stopped). Сохранено товаров: 6
+19:01:57 Папка запуска: D:\claudepetpapka\AlotPro\product-scraper\ProductScraper\runs\2026-10-20_19-00-15_Все_товары
+19:01:57 Настройки: «Все товары», потоков 2, лимит 40, пауза 1.0 с
+19:02:00 Каталог, страница 1: ссылок 20, новых 20
+19:02:00 Карточки: в очереди 54, запускаю потоков: 2
+19:02:03 Сохранено: The Dirty Little Secrets of Getting Your Dream Job — 33.34 £
+19:02:03 Сохранено: The Coming Woman: A Novel Based on the Life of the Infamous Feminist, Victoria Woodhull — 17.93 £
+19:02:05 Сохранено: The Boys in the Boat: Nine Americans and Their Epic Quest for Gold at the 1936 Berlin Olympics — 22.6 £
+19:02:06 Сохранено: The Black Maria — 52.15 £
+19:02:08 Сохранено: Starving Hearts (Triangular Trade Trilogy, #1) — 13.99 £
+19:02:08 Сохранено: Shakespeare's Sonnets — 20.66 £
+19:02:10 Сохранено: Set Me Free — 17.46 £
+19:02:10 Сохранено: Scott Pilgrim's Precious Little Life (Scott Pilgrim #1) — 52.29 £
+19:02:13 Сохранено: Rip it Up and Start Again — 35.02 £
+19:02:13 Сохранено: Our Band Could Be Your Life: Scenes from the American Indie Underground, 1981-1991 — 57.25 £
+19:02:15 Сохранено: Olio — 23.88 £
+19:02:15 Сохранено: Mesaerion: The Best Science Fiction Stories 1800-1849 — 37.59 £
+19:02:17 Сохранено: Libertarianism for Beginners — 51.33 £
+19:02:18 Сохранено: It's Only the Himalayas — 45.17 £
+19:02:19 Сохранено: In Her Wake — 12.84 £
+19:02:20 Сохранено: How Music Works — 37.32 £
+19:02:21 Сохранено: Foolproof Preserving: A Guide to Small Batch Jams, Jellies, Pickles, Condiments, and More: A Foolproof Guide to Making Small Batch Jams, Jellies, Pickles, Condiments, and More — 30.52 £
+19:02:22 Сохранено: Chase Me (Paris Nights #2) — 25.27 £
+19:02:23 Сохранено: Black Dust — 34.53 £
+19:02:24 Сохранено: Birdsong: A Story in Pictures — 54.64 £
+19:02:25 Сохранено: America's Cradle of Quarterbacks: Western Pennsylvania's Football Factory from Johnny Unitas to Joe Montana — 22.5 £
+19:02:26 Сохранено: Aladdin and His Wonderful Lamp — 53.13 £
+19:02:28 Сохранено: Worlds Elsewhere: Journeys Around Shakespeare’s Globe — 40.3 £
+19:02:28 Сохранено: Wall and Piece — 44.18 £
+19:02:30 Сохранено: The Four Agreements: A Practical Guide to Personal Freedom — 17.66 £
+19:02:30 Сохранено: The Five Love Languages: How to Express Heartfelt Commitment to Your Mate — 31.05 £
+19:02:32 Сохранено: The Elephant Tree — 23.82 £
+19:02:33 Сохранено: The Bear and the Piano — 36.89 £
+19:02:34 Сохранено: Sophie's World — 15.94 £
+19:02:35 Сохранено: Penny Maybe — 33.29 £
+19:02:36 Сохранено: Maude (1883-1993):She Grew Up with the country — 18.02 £
+19:02:37 Сохранено: In a Dark, Dark Wood — 19.63 £
+19:02:38 Сохранено: Behind Closed Doors — 52.22 £
+19:02:39 Сохранено: You can't bury them all: Poems — 33.63 £
+19:02:39 Достигнут лимит записей.
+19:02:41 Файл сохранён: D:\claudepetpapka\AlotPro\product-scraper\ProductScraper\runs\2026-10-20_19-00-15_Все_товары\products.csv
+19:02:41 Файл сохранён: D:\claudepetpapka\AlotPro\product-scraper\ProductScraper\runs\2026-10-20_19-00-15_Все_товары\products.xlsx
+19:02:41 Завершено (limit). Сохранено товаров: 40
