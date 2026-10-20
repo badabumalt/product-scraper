@@ -13,12 +13,9 @@ os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
 APP_NAME = "Сборщик товаров"
 BASE_URL = "https://books.toscrape.com/"
 ALL_PRODUCTS_URL = "https://books.toscrape.com/catalogue/page-1.html"
-# Вариант А: Указать явный путь (Windows-стиль)
-DEFAULT_OUTPUT_DIR = Path("D:/claudepetpapka/AlotPro/product-scraper/ProductScraper")
+DEFAULT_OUTPUT_DIR = Path.home() / "ProductScraper"
 
-# Вариант Б: Динамически указывать папку от текущего файла конфига
-# (если конфиг лежит в корне проекта)
-DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parent / "ProductScraper"
+
 
 PAGE_TIMEOUT_MS = 30000      # сколько ждать загрузку страницы
 RETRIES = 3                  # сколько раз повторять при сетевой ошибке
