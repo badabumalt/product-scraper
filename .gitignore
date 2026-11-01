@@ -5,3 +5,5 @@ build/
 dist/
 installer_output/
 crash.log
+ProductScraper/
+chrome_profile/

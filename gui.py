@@ -31,28 +31,31 @@ class App(tk.Tk):
         self.run_dir = None
         self.cur_limit = 0
         self.started_at = 0.0
-        self.categories = {"Все товары": config.ALL_PRODUCTS_URL}
+        self.categories = {"Поиск Avito (MacBook)": config.ALL_PRODUCTS_URL}
         self.bg_events = queue.Queue()   # сообщения от фоновых потоков окну
 
         self.var_out = tk.StringVar(value=str(config.DEFAULT_OUTPUT_DIR))
-        self.var_cat = tk.StringVar(value="Все товары")
-        self.var_threads = tk.StringVar(value="2")
+        self.var_cat = tk.StringVar(value="Поиск Avito (MacBook)")
+        self.var_threads = tk.StringVar(value="1")  # для Авито лучше 1 поток
         self.var_limit = tk.StringVar(value="20")
-        self.var_delay = tk.StringVar(value="1.0")
+        self.var_delay = tk.StringVar(value="3.0")  # увеличенная пауза для безопасности
         self.var_min = tk.StringVar(value="")
         self.var_max = tk.StringVar(value="")
-        self.var_kw = tk.StringVar(value="")
+        self.var_kw = tk.StringVar(value="MacBook")
         self.var_stock = tk.BooleanVar(value=False)
 
         self._build()
-        self._load_categories()
+        
+        # Отключаем автоматический парсинг категорий с чужого сайта, чтобы окно не зависало
+        # self._load_categories() 
+        
         self.protocol("WM_DELETE_WINDOW", self._on_close)
         self.after(400, self._poll)
 
     # ---------- построение окна ----------
     def _build(self):
         pad = {"padx": 8, "pady": 4}
-        box = ttk.LabelFrame(self, text="Настройки")
+        box = ttk.LabelFrame(self, text="Настройки поиска ноутбуков (Avito)")
         box.pack(fill="x", padx=10, pady=8)
         box.columnconfigure(1, weight=1)
 
@@ -60,31 +63,31 @@ class App(tk.Tk):
         ttk.Entry(box, textvariable=self.var_out).grid(row=0, column=1, sticky="ew", **pad)
         ttk.Button(box, text="Обзор…", command=self._pick_folder).grid(row=0, column=2, **pad)
 
-        ttk.Label(box, text="Категория:").grid(row=1, column=0, sticky="w", **pad)
-        self.cmb = ttk.Combobox(box, textvariable=self.var_cat, state="readonly", values=["Все товары"])
+        ttk.Label(box, text="Запрос / Режим:").grid(row=1, column=0, sticky="w", **pad)
+        self.cmb = ttk.Combobox(box, textvariable=self.var_cat, state="readonly", values=["Поиск Avito (MacBook)"])
         self.cmb.grid(row=1, column=1, sticky="ew", **pad)
-        self.btn_cats = ttk.Button(box, text="Обновить список", command=self._load_categories)
+        self.btn_cats = ttk.Button(box, text="Сбросить", command=self._load_categories)
         self.btn_cats.grid(row=1, column=2, **pad)
 
         nums = ttk.Frame(box)
         nums.grid(row=2, column=0, columnspan=3, sticky="w")
-        self._spin(nums, "Потоков (1–5):", self.var_threads, 1, 5, 1, 0)
+        self._spin(nums, "Потоков (1–3):", self.var_threads, 1, 3, 1, 0)
         self._spin(nums, "Лимит записей (0 = без лимита):", self.var_limit, 0, 100000, 10, 1)
-        self._spin(nums, "Пауза между запросами, сек:", self.var_delay, 0, 10, 0.5, 2)
+        self._spin(nums, "Пауза между запросами, сек:", self.var_delay, 0, 30, 0.5, 2)
 
         flt = ttk.Frame(box)
         flt.grid(row=3, column=0, columnspan=3, sticky="w")
-        ttk.Label(flt, text="Цена, £ — от:").grid(row=0, column=0, padx=(8, 2), pady=4)
-        ttk.Entry(flt, textvariable=self.var_min, width=8).grid(row=0, column=1, pady=4)
+        ttk.Label(flt, text="Цена, руб — от:").grid(row=0, column=0, padx=(8, 2), pady=4)
+        ttk.Entry(flt, textvariable=self.var_min, width=10).grid(row=0, column=1, pady=4)
         ttk.Label(flt, text="до:").grid(row=0, column=2, padx=(8, 2), pady=4)
-        ttk.Entry(flt, textvariable=self.var_max, width=8).grid(row=0, column=3, pady=4)
-        ttk.Label(flt, text="Название содержит:").grid(row=0, column=4, padx=(16, 2), pady=4)
-        ttk.Entry(flt, textvariable=self.var_kw, width=20).grid(row=0, column=5, pady=4)
-        ttk.Checkbutton(flt, text="Только в наличии", variable=self.var_stock).grid(row=0, column=6, padx=16)
+        ttk.Entry(flt, textvariable=self.var_max, width=10).grid(row=0, column=3, pady=4)
+        ttk.Label(flt, text="Ключевое слово:").grid(row=0, column=4, padx=(16, 2), pady=4)
+        ttk.Entry(flt, textvariable=self.var_kw, width=18).grid(row=0, column=5, pady=4)
+        ttk.Checkbutton(flt, text="Только с доставкой/в наличии", variable=self.var_stock).grid(row=0, column=6, padx=16)
 
         buttons = ttk.Frame(self)
         buttons.pack(fill="x", padx=10)
-        self.btn_start = ttk.Button(buttons, text="▶ Запустить", command=self._start)
+        self.btn_start = ttk.Button(buttons, text="▶ Запустить сбор", command=self._start)
         self.btn_start.pack(side="left", padx=(0, 6))
         self.btn_resume = ttk.Button(buttons, text="⟳ Продолжить…", command=self._resume)
         self.btn_resume.pack(side="left", padx=6)
@@ -92,7 +95,7 @@ class App(tk.Tk):
         self.btn_stop.pack(side="left", padx=6)
         ttk.Button(buttons, text="Открыть папку", command=self._open_folder).pack(side="right")
 
-        self.lbl_status = ttk.Label(self, text="Готов к запуску", font=("Segoe UI", 10, "bold"), wraplength=860)
+        self.lbl_status = ttk.Label(self, text="Готов к запуску. Проверьте VPN и капчу перед стартом.", font=("Segoe UI", 10, "bold"), wraplength=860)
         self.lbl_status.pack(fill="x", padx=10, pady=(10, 2))
         self.progress = ttk.Progressbar(self, maximum=100)
         self.progress.pack(fill="x", padx=10, pady=2)
@@ -161,27 +164,14 @@ class App(tk.Tk):
 
     # ---------- категории ----------
     def _load_categories(self):
-        self.btn_cats.configure(state="disabled", text="Загружаю…")
-
-        def work():
-            try:
-                self.bg_events.put(("categories", fetch_categories(), None))
-            except Exception as error:
-                self.bg_events.put(("categories", None, str(error).strip().splitlines()[0] if str(error).strip() else repr(error)))
-
-        threading.Thread(target=work, daemon=True).start()
+        # Заглушка для Авито, чтобы интерфейс не зависал при попытке парсить чужое меню
+        self.categories = {"Поиск Avito (MacBook)": config.ALL_PRODUCTS_URL}
+        self.cmb.configure(values=list(self.categories))
+        self.var_cat.set("Поиск Avito (MacBook)")
+        self._append_log("Режим поиска Авито активен.")
 
     def _categories_loaded(self, cats, error):
-        self.btn_cats.configure(state="normal", text="Обновить список")
-        if error:
-            self._append_log(f"Не удалось загрузить категории: {error}")
-            self._append_log("Проверьте интернет. При запуске из исходников — шпаргалка, п. 7.")
-            return
-        self.categories = dict(cats)
-        self.cmb.configure(values=list(self.categories))
-        if self.var_cat.get() not in self.categories:
-            self.var_cat.set("Все товары")
-        self._append_log(f"Категорий загружено: {len(cats) - 1}")
+        pass
 
     # ---------- кнопки ----------
     def _busy(self):
