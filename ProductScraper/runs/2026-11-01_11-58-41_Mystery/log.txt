@@ -1,0 +1,41 @@
+11:58:41 Папка запуска: D:\claudepetpapka\AlotPro\product-scraper\ProductScraper\runs\2026-11-01_11-58-41_Mystery
+11:58:41 Настройки: «Mystery», потоков 2, лимит 20, пауза 1.0 с
+11:58:44 Каталог, страница 1: ссылок 20, новых 20
+11:58:46 Каталог, страница 2: ссылок 12, новых 12
+11:58:46 Каталог прочитан полностью
+11:58:46 Карточки: в очереди 32, запускаю потоков: 2
+11:58:49 Отфильтровано: Sharp Objects
+11:58:49 Отфильтровано: In a Dark, Dark Wood
+11:58:51 Отфильтровано: The Past Never Ends
+11:58:51 Отфильтровано: A Murder in Time
+11:58:53 Отфильтровано: The Murder of Roger Ackroyd (Hercule Poirot #4)
+11:58:53 Отфильтровано: The Last Mile (Amos Decker #2)
+11:58:55 Отфильтровано: That Darkness (Gardiner and Renner #1)
+11:58:55 Отфильтровано: Tastes Like Fear (DI Marnie Rome #3)
+11:58:57 Отфильтровано: A Time of Torment (Charlie Parker #14)
+11:58:57 Отфильтровано: A Study in Scarlet (Sherlock Holmes #1)
+11:58:59 Сохранено: Poisonous (Max Revere Novels #3) — 26.8 £
+11:58:59 Отфильтровано: Murder at the 42nd Street Library (Raymond Ambler #1)
+11:59:01 Отфильтровано: Most Wanted
+11:59:01 Отфильтровано: Hide Away (Eve Duncan #20)
+11:59:03 Отфильтровано: Boar Island (Anna Pigeon #19)
+11:59:03 Сохранено: The Widow — 27.26 £
+11:59:05 Отфильтровано: Playing with Fire
+11:59:05 Сохранено: What Happened on Beale Street (Secrets of the South Mysteries #2) — 25.37 £
+11:59:07 Отфильтровано: The Bachelor Girl's Guide to Murder (Herringford and Watts Mysteries #1)
+11:59:07 Сохранено: Delivering the Truth (Quaker Midwife Mystery #1) — 20.89 £
+11:59:09 Сохранено: The Mysterious Affair at Styles (Hercule Poirot #1) — 24.8 £
+11:59:09 Отфильтровано: In the Woods (Dublin Murder Squad #1)
+11:59:11 Сохранено: The Silkworm (Cormoran Strike #2) — 23.05 £
+11:59:11 Отфильтровано: The Exiled
+11:59:13 Отфильтровано: The Cuckoo's Calling (Cormoran Strike #1)
+11:59:13 Сохранено: Extreme Prey (Lucas Davenport #26) — 25.4 £
+11:59:15 Сохранено: Career of Evil (Cormoran Strike #3) — 24.72 £
+11:59:15 Отфильтровано: The No. 1 Ladies' Detective Agency (No. 1 Ladies' Detective Agency #1)
+11:59:17 Отфильтровано: The Girl You Lost
+11:59:17 Отфильтровано: The Girl In The Ice (DCI Erika Foster #1)
+11:59:19 Сохранено: Blood Defense (Samantha Brinkman #1) — 20.3 £
+11:59:19 Отфильтровано: 1st to Die (Women's Murder Club #1)
+11:59:20 Файл сохранён: D:\claudepetpapka\AlotPro\product-scraper\ProductScraper\runs\2026-11-01_11-58-41_Mystery\products.csv
+11:59:20 Файл сохранён: D:\claudepetpapka\AlotPro\product-scraper\ProductScraper\runs\2026-11-01_11-58-41_Mystery\products.xlsx
+11:59:20 Завершено (done). Сохранено товаров: 9

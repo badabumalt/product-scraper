@@ -15,7 +15,7 @@ if __name__ == "__main__":
         main()
     except Exception:
         # у собранного exe нет консоли, поэтому пишем причину падения в файл
-        crash = Path.home() / "ProductScraper" / "crash.log"
+        crash = Path("D:/claudepetpapka/AlotPro/product-scraper/logs/crash.log")
         crash.parent.mkdir(parents=True, exist_ok=True)
         crash.write_text(traceback.format_exc(), encoding="utf-8")
         raise

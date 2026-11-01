@@ -13,7 +13,7 @@ os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
 APP_NAME = "Сборщик товаров"
 BASE_URL = "https://books.toscrape.com/"
 ALL_PRODUCTS_URL = "https://books.toscrape.com/catalogue/page-1.html"
-DEFAULT_OUTPUT_DIR = Path.home() / "ProductScraper"
+DEFAULT_OUTPUT_DIR = "D:/claudepetpapka/AlotPro/product-scraper/ProductScraper"
 
 
 
