@@ -1,4 +1,4 @@
-"""Логика парсинга (Playwright + BeautifulSoup) с надежным удержанием окна для прохождения капчи."""
+"""Логика парсинга (Playwright + BeautifulSoup) с сохранением в полноценный Excel (.xlsx)."""
 import queue
 import threading
 import time
@@ -10,6 +10,7 @@ import random
 
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
+import openpyxl
 
 import config
 from config import Settings
@@ -38,13 +39,11 @@ class RunLog:
 
 
 @contextmanager
-def browser_page():
-    """Запускает браузер в абсолютно заводском режиме, полностью возвращая контроль мышке."""
-    # Очищаем старые следы (папку)
+def browser_page(stop_event=None):
+    """Запускает браузер и удерживает его, пока окно открыто ИЛИ пока не принудительно остановлен процесс."""
     user_data_dir = Path("./chrome_profile")
     
     with sync_playwright() as pw:
-        # Запуск БЕЗ единой настройки, ломающей работу Cloudflare
         context = pw.chromium.launch_persistent_context(
             user_data_dir=str(user_data_dir),
             headless=False,
@@ -52,30 +51,27 @@ def browser_page():
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
-                "--start-maximized" # Разворачивает окно через ОС, а не через скрипты
+                "--start-maximized"
             ]
         )
-
-        # Сюда мы БОЛЬШЕ НЕ пишем set_extra_http_headers и add_init_script. 
-        # Именно они вешали скрипты кликов мыши на Авито.
 
         try:
             page = context.new_page() if not context.pages else context.pages[0]
             page.set_default_timeout(config.PAGE_TIMEOUT_MS)
             yield page
         finally:
-            print("\n⏸️ [ОТЛАДКА] Окно удерживается. Прожмите проверку мышкой.")
+            print("\n⏸️ [ОТЛАДКА] Окно завершило сбор данных.")
             try:
                 while len(context.pages) > 0:
-                    time.sleep(1)
+                    if stop_event and stop_event.is_set():
+                        break
+                    time.sleep(0.5)
             except Exception:
                 pass
             try:
                 context.close()
             except Exception:
                 pass
-
-
 
 
 class Runner:
@@ -124,16 +120,14 @@ class Runner:
             self.log(f"Папка запуска: {self.storage.run_dir}")
             self.log(f"Запуск сбора по запросу: {self.settings.category_name}")
             
-            with browser_page() as page:
+            with browser_page(stop_event=self.stop_event) as page:
                 self.log(f"Открытие страницы: {self.settings.category_url}")
                 
                 try:
-                    # Ждем networkidle (чтобы все скрипты Авито успели подгрузить блоки объявлений)
                     page.goto(self.settings.category_url, wait_until="networkidle", timeout=30000)
                 except Exception as e:
                     self.log(f"⚠️ Сеть не освободилась полностью, пробуем продолжить: {e}")
                 
-                # Даем паузу и делаем легкий скролл для имитации живого человека
                 time.sleep(random.uniform(2, 4))
                 try:
                     page.mouse.wheel(0, random.randint(200, 400))
@@ -145,15 +139,12 @@ class Runner:
                 content = page.content()
                 page_title = page.title()
                 
-                # Проверяем наличие капчи или защиты
                 if "439" in page_title or "доступ ограничен" in content.lower() or "подтвердите, что вы не робот" in content.lower() or "квадрат" in content.lower():
                     self.log("⛔ Обнаружена защита/капча от Авито!")
                     self.log("💡 Внимание: Пройдите капчу РУКАМИ (мышкой) в открывшемся окне браузера!")
-                    self.log("👉 Скрипт замер и ждет, пока вы кликните по кнопке проверки.")
                     
                     self.reason = "blocked"
                     
-                    # Цикл удержания: ждем, пока в окне благодаря вашему ручному клику не появятся объявления
                     while not self.stop_event.is_set():
                         try:
                             if not page.is_closed() and 'data-marker="item"' in page.content():
@@ -173,7 +164,49 @@ class Runner:
                     
                     if len(items) == 0:
                         self.log("⚠️ Объявления не найдены. Если страница пустая, проверьте чистоту интернета.")
-                    
+                    else:
+                        limit_val = getattr(self.settings, 'limit', 100)
+                        
+                        for item in items:
+                            try:
+                                title_tag = item.find('h3', {'itemprop': 'name'})
+                                title = title_tag.get_text(strip=True) if title_tag else "Без названия"
+                                
+                                price_tag = item.find('meta', {'itemprop': 'price'})
+                                price = float(price_tag.get('content')) if price_tag and price_tag.get('content') else 0.0
+                                
+                                link_tag = item.find('a', {'itemprop': 'url'})
+                                link = "https://avito.ru" + link_tag.get('href') if link_tag else "Нет ссылки"
+                                
+                                item_id = item.get('data-item-id')
+                                if not item_id and link != "Нет ссылки":
+                                    match = re.search(r'_(\d+)$', link.split('?')[0])
+                                    item_id = match.group(1) if match else str(random.randint(100000, 999999))
+                                else:
+                                    item_id = item_id or str(random.randint(100000, 999999))
+
+                                rec = {
+                                    "url": link,
+                                    "sku": item_id,
+                                    "title": title,
+                                    "price": price,
+                                    "currency": "RUB",
+                                    "in_stock": 1,
+                                    "stock_qty": 1,
+                                    "category": self.settings.category_name or "MacBook",
+                                    "rating": 0,
+                                    "specs": {}
+                                }
+                                
+                                status = self.storage.add_product(rec, limit=limit_val)
+                                if status == "limit":
+                                    self.log("Достигнут лимит сбора товаров.")
+                                    self.stop()
+                                    break
+                                    
+                            except Exception:
+                                continue
+                                
                     self.reason = "done"
                     
         except Exception as e:
@@ -181,13 +214,51 @@ class Runner:
             self.reason = "error"
         finally:
             try:
-                if hasattr(self.storage, 'export_files'):
-                    files = self.storage.export_files()
-                    self.log(f"Файл сохранён: {files.get('csv')}")
-                elif hasattr(self.storage, 'save'):
+                # ВЫГРУЗКА В ПОЛНОЦЕННЫЙ EXCEL (.xlsx) ФОРМАТ
+                all_prods = self.storage.all_products()
+                if all_prods and len(all_prods) > 0:
+                    timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                    xlsx_filename = f"scraped_products_{timestamp_str}.xlsx"
+                    xlsx_path = self.storage.run_dir / xlsx_filename
+                    
+                    # Создаем Excel книгу через openpyxl
+                    wb = openpyxl.Workbook()
+                    ws = wb.active
+                    ws.title = "Объявления"
+                    
+                    # Заголовки столбцов
+                    headers = ["Название", "Цена", "Ссылка", "Артикул", "Категория"]
+                    ws.append(headers)
+                    
+                    # Заполняем строки данными
+                    for prod in all_prods:
+                        # Артикул записываем как строку, чтобы Excel не превращал его в научный формат (8.18E+09)
+                        sku_val = str(prod.get("sku", ""))
+                        
+                        row = [
+                            prod.get("title", ""),
+                            prod.get("price", 0.0),
+                            prod.get("url", ""),
+                            sku_val,
+                            prod.get("category", "")
+                        ]
+                        ws.append(row)
+                        
+                    # Автоматически настраиваем ширину столбцов для красоты
+                    for col in ws.columns:
+                        max_len = max(len(str(cell.value or '')) for cell in col)
+                        col_letter = openpyxl.utils.get_column_letter(col[0].column)
+                        ws.column_dimensions[col_letter].width = max(max_len + 3, 12)
+                        
+                    wb.save(xlsx_path)
+                    self.log(f"📊 Таблица успешно выгружена в Excel-файл: {xlsx_path}")
+                else:
+                    self.log("⚠️ База данных пуста, нечего выгружать в Excel.")
+                
+                if hasattr(self.storage, 'save'):
                     self.storage.save()
             except Exception as e:
-                self.log(f"⚠️ Ошибка при сохранении данных: {e}")
+                self.log(f"⚠️ Ошибка при сохранении данных в Excel: {e}")
 
             self.log(f"Завершено ({self.reason}).")
             stats = self.storage.stats() if hasattr(self.storage, 'stats') else {}
@@ -206,4 +277,3 @@ def new_run_dir(base_dir, category_name=""):
 
 def fetch_categories(url):
     return {"Поиск Avito (MacBook)": config.ALL_PRODUCTS_URL}
-
