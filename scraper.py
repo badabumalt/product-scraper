@@ -1,4 +1,4 @@
-"""Логика парсинга (Playwright + BeautifulSoup) с сохранением в полноценный Excel (.xlsx)."""
+"""Логика парсинга (Playwright + BeautifulSoup) с точным поиском по data-marker и выгрузкой в Excel."""
 import queue
 import threading
 import time
@@ -169,15 +169,26 @@ class Runner:
                         
                         for item in items:
                             try:
-                                title_tag = item.find('h3', {'itemprop': 'name'})
-                                title = title_tag.get_text(strip=True) if title_tag else "Без названия"
+                                # Точный поиск названия и ссылки через data-marker="item-title"
+                                title_tag = item.find('a', {'data-marker': 'item-title'})
                                 
+                                if title_tag:
+                                    title = title_tag.get_text(strip=True) or title_tag.get('title', 'Без названия')
+                                    raw_link = title_tag.get('href', '')
+                                    link = "https://avito.ru" + raw_link if raw_link.startswith('/') else raw_link
+                                else:
+                                    # Запасной вариант
+                                    title_tag_alt = item.find('h3', {'itemprop': 'name'}) or item.find('h2', {'itemprop': 'name'})
+                                    title = title_tag_alt.get_text(strip=True) if title_tag_alt else "Без названия"
+                                    
+                                    link_tag = item.find('a', {'itemprop': 'url'}) or item.find('a', {'data-marker': 'item-title'})
+                                    link = "https://avito.ru" + link_tag.get('href') if link_tag and link_tag.get('href') else "Нет ссылки"
+                                
+                                # Числовая цена из мета-тегов Авито
                                 price_tag = item.find('meta', {'itemprop': 'price'})
                                 price = float(price_tag.get('content')) if price_tag and price_tag.get('content') else 0.0
                                 
-                                link_tag = item.find('a', {'itemprop': 'url'})
-                                link = "https://avito.ru" + link_tag.get('href') if link_tag else "Нет ссылки"
-                                
+                                # ID объявления (артикул)
                                 item_id = item.get('data-item-id')
                                 if not item_id and link != "Нет ссылки":
                                     match = re.search(r'_(\d+)$', link.split('?')[0])
@@ -214,27 +225,22 @@ class Runner:
             self.reason = "error"
         finally:
             try:
-                # ВЫГРУЗКА В ПОЛНОЦЕННЫЙ EXCEL (.xlsx) ФОРМАТ
+                # ВЫГРУЗКА В ПОЛНОЦЕННЫЙ EXCEL (.xlsx) ФОРМАТ С ЧИСТОЙ КИРИЛЛИЦЕЙ
                 all_prods = self.storage.all_products()
                 if all_prods and len(all_prods) > 0:
                     timestamp_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                     xlsx_filename = f"scraped_products_{timestamp_str}.xlsx"
                     xlsx_path = self.storage.run_dir / xlsx_filename
                     
-                    # Создаем Excel книгу через openpyxl
                     wb = openpyxl.Workbook()
                     ws = wb.active
                     ws.title = "Объявления"
                     
-                    # Заголовки столбцов
                     headers = ["Название", "Цена", "Ссылка", "Артикул", "Категория"]
                     ws.append(headers)
                     
-                    # Заполняем строки данными
                     for prod in all_prods:
-                        # Артикул записываем как строку, чтобы Excel не превращал его в научный формат (8.18E+09)
                         sku_val = str(prod.get("sku", ""))
-                        
                         row = [
                             prod.get("title", ""),
                             prod.get("price", 0.0),
@@ -244,7 +250,6 @@ class Runner:
                         ]
                         ws.append(row)
                         
-                    # Автоматически настраиваем ширину столбцов для красоты
                     for col in ws.columns:
                         max_len = max(len(str(cell.value or '')) for cell in col)
                         col_letter = openpyxl.utils.get_column_letter(col[0].column)
