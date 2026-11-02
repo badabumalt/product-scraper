@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 import re
 import random
+import shutil
 
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
@@ -42,6 +43,30 @@ class RunLog:
 def browser_page(stop_event=None):
     """Запускает браузер и удерживает его, пока окно открыто ИЛИ пока не принудительно остановлен процесс."""
     user_data_dir = Path("./chrome_profile")
+    if user_data_dir.exists():
+        # Полный список папок, где Chrome хранит куки, сессии и следы антибота
+        targets = [
+            "Default/Cache", 
+            "Default/Code Cache", 
+            "Default/GPUCache", 
+            "SingletonLock",
+            "Default/Network",
+            "Default/Local Storage",
+            "Default/Session Storage",
+            "Default/Cookies",
+            "Default/Network Persistent State"
+        ]
+        
+        for subfolder in targets:
+            p = user_data_dir / subfolder
+            if p.exists():
+                try:
+                    if p.is_dir():
+                        shutil.rmtree(p, ignore_errors=True)
+                    else:
+                        p.unlink(missing_ok=True)
+                except Exception:
+                    pass
     
     with sync_playwright() as pw:
         context = pw.chromium.launch_persistent_context(
